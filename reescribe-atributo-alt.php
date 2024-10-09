@@ -2,8 +2,8 @@
 /*
 Plugin Name: Reescribe atributo ALT
 Description: Reescribe el atributo ALT de las imágenes para mejorar la accesibilidad.
-Version: 1.0
-Author: Tu Nombre
+Version: 1.1
+Author: A. Cambronero Blogpocket.com
 Text Domain: reescribe-atributo-alt
 */
 
@@ -104,14 +104,28 @@ function raa_options_page() {
 add_filter('the_content', 'raa_modify_image_alt_tags');
 
 function raa_modify_image_alt_tags($content) {
-    if (!is_singular()) {
-        return $content;
-    }
+    // Eliminar la condición is_singular()
+    // if (!is_singular()) {
+    //     return $content;
+    // }
 
     $options = get_option('raa_settings');
     $include_title = isset($options['include_title']);
     $include_filename = isset($options['include_filename']);
     $default_text = isset($options['default_text']) ? $options['default_text'] : '';
+
+    // Obtener el título de la página actual
+    if ($include_title) {
+        if (is_singular()) {
+            $title = get_the_title();
+        } elseif (is_archive()) {
+            $title = get_the_archive_title();
+        } elseif (is_home()) {
+            $title = get_bloginfo('name');
+        } else {
+            $title = '';
+        }
+    }
 
     // Cargar el contenido en DOMDocument
     libxml_use_internal_errors(true);
@@ -127,9 +141,8 @@ function raa_modify_image_alt_tags($content) {
 
         $new_alt_parts = array();
 
-        if ($include_title) {
-            $post_title = get_the_title();
-            $new_alt_parts[] = $post_title;
+        if ($include_title && !empty($title)) {
+            $new_alt_parts[] = $title;
         }
 
         if ($include_filename && $src) {
