@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: Reescribe atributo ALT
-Description: Reescribe el atributo ALT de las imágenes para mejorar la accesibilidad.
-Version: 1.2
+Description: Reescribe los atributos ALT y TITLE de las imágenes para mejorar la accesibilidad.
+Version: 1.3
 Author: A. Cambronero Blogpocket.com
 Text Domain: reescribe-atributo-alt
 */
@@ -105,7 +105,7 @@ function raa_default_text_render() {
 }
 
 function raa_settings_section_callback() {
-    echo __('Configura cómo se reescribirá el atributo ALT de las imágenes.', 'reescribe-atributo-alt');
+    echo __('Configura cómo se reescribirán los atributos ALT y TITLE de las imágenes.', 'reescribe-atributo-alt');
 }
 
 function raa_options_page() {
@@ -123,7 +123,7 @@ function raa_options_page() {
     <?php
 }
 
-// Reescribir el atributo ALT de las imágenes
+// Reescribir los atributos ALT y TITLE de las imágenes
 add_filter('the_content', 'raa_modify_image_alt_tags');
 
 function raa_modify_image_alt_tags($content) {
@@ -185,7 +185,9 @@ function raa_modify_image_alt_tags($content) {
         // Saneamiento del atributo ALT
         $new_alt = esc_attr($new_alt);
 
+        // Asignar el nuevo valor a los atributos 'alt' y 'title'
         $img->setAttribute('alt', $new_alt);
+        $img->setAttribute('title', $new_alt);
     }
 
     // Guardar el contenido modificado
@@ -197,3 +199,4 @@ function raa_modify_image_alt_tags($content) {
 
     return $new_content;
 }
+
