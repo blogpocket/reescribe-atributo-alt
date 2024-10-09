@@ -15,7 +15,7 @@ Reescribe el atributo ALT de las imágenes para mejorar la accesibilidad.
 ## Consideraciones Importantes
 - Validación de entradas: Aunque las opciones son configuradas por el administrador, es recomendable validar y sanitizar los datos si se amplía el plugin.
 - Soporte Multisitio: Si usas WordPress Multisitio, asegúrate de que el plugin funciona correctamente en ese entorno.
-- Internacionalización: El plugin está preparado para traducción utilizando el dominio de texto alt-attribute-rewriter.
+- Internacionalización: El plugin está preparado para traducción utilizando el dominio de texto reescribe-atributo-alt.
 ## Posibles Mejoras
 - Soporte para imágenes con srcset: Si tus imágenes utilizan el atributo srcset, podrías ampliar el plugin para manejar esos casos.
 - Caché: Si notas problemas de rendimiento, considera implementar algún mecanismo de caché o optimizar la manipulación del DOM.
