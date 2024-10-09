@@ -2,7 +2,7 @@
 /*
 Plugin Name: Reescribe atributo ALT
 Description: Reescribe el atributo ALT de las imágenes para mejorar la accesibilidad.
-Version: 1.1
+Version: 1.2
 Author: A. Cambronero Blogpocket.com
 Text Domain: reescribe-atributo-alt
 */
@@ -26,7 +26,7 @@ function raa_add_admin_menu() {
 }
 
 function raa_settings_init() {
-    register_setting('raa_settings_group', 'raa_settings');
+    register_setting('raa_settings_group', 'raa_settings', 'raa_sanitize_settings');
 
     add_settings_section(
         'raa_settings_section',
@@ -60,24 +60,47 @@ function raa_settings_init() {
     );
 }
 
+// Función de sanitización de ajustes
+function raa_sanitize_settings($input) {
+    $sanitized_input = array();
+
+    // Saneamiento del checkbox 'include_title'
+    $sanitized_input['include_title'] = isset($input['include_title']) && $input['include_title'] == '1' ? '1' : '';
+
+    // Saneamiento del checkbox 'include_filename'
+    $sanitized_input['include_filename'] = isset($input['include_filename']) && $input['include_filename'] == '1' ? '1' : '';
+
+    // Saneamiento del texto 'default_text'
+    if (isset($input['default_text'])) {
+        $sanitized_input['default_text'] = sanitize_text_field($input['default_text']);
+    } else {
+        $sanitized_input['default_text'] = '';
+    }
+
+    return $sanitized_input;
+}
+
 function raa_include_title_render() {
     $options = get_option('raa_settings');
+    $include_title = isset($options['include_title']) ? esc_attr($options['include_title']) : '';
     ?>
-    <input type='checkbox' name='raa_settings[include_title]' <?php checked(isset($options['include_title'])); ?> value='1'>
+    <input type='checkbox' name='raa_settings[include_title]' <?php checked($include_title, '1'); ?> value='1'>
     <?php
 }
 
 function raa_include_filename_render() {
     $options = get_option('raa_settings');
+    $include_filename = isset($options['include_filename']) ? esc_attr($options['include_filename']) : '';
     ?>
-    <input type='checkbox' name='raa_settings[include_filename]' <?php checked(isset($options['include_filename'])); ?> value='1'>
+    <input type='checkbox' name='raa_settings[include_filename]' <?php checked($include_filename, '1'); ?> value='1'>
     <?php
 }
 
 function raa_default_text_render() {
     $options = get_option('raa_settings');
+    $default_text = isset($options['default_text']) ? esc_attr($options['default_text']) : '';
     ?>
-    <input type='text' name='raa_settings[default_text]' value='<?php echo isset($options['default_text']) ? esc_attr($options['default_text']) : ''; ?>' style='width: 300px;'>
+    <input type='text' name='raa_settings[default_text]' value='<?php echo $default_text; ?>' style='width: 300px;'>
     <?php
 }
 
@@ -104,17 +127,15 @@ function raa_options_page() {
 add_filter('the_content', 'raa_modify_image_alt_tags');
 
 function raa_modify_image_alt_tags($content) {
-    // Eliminar la condición is_singular()
-    // if (!is_singular()) {
-    //     return $content;
-    // }
-
     $options = get_option('raa_settings');
-    $include_title = isset($options['include_title']);
-    $include_filename = isset($options['include_filename']);
-    $default_text = isset($options['default_text']) ? $options['default_text'] : '';
+
+    // Saneamiento de opciones
+    $include_title = isset($options['include_title']) && $options['include_title'] == '1';
+    $include_filename = isset($options['include_filename']) && $options['include_filename'] == '1';
+    $default_text = isset($options['default_text']) ? sanitize_text_field($options['default_text']) : '';
 
     // Obtener el título de la página actual
+    $title = '';
     if ($include_title) {
         if (is_singular()) {
             $title = get_the_title();
@@ -122,9 +143,8 @@ function raa_modify_image_alt_tags($content) {
             $title = get_the_archive_title();
         } elseif (is_home()) {
             $title = get_bloginfo('name');
-        } else {
-            $title = '';
         }
+        $title = sanitize_text_field($title);
     }
 
     // Cargar el contenido en DOMDocument
@@ -148,10 +168,12 @@ function raa_modify_image_alt_tags($content) {
         if ($include_filename && $src) {
             // Obtener el nombre de archivo sin extensión
             $filename = pathinfo(parse_url($src, PHP_URL_PATH), PATHINFO_FILENAME);
+            $filename = sanitize_text_field($filename);
             $new_alt_parts[] = $filename;
         }
 
         if (!empty($alt)) {
+            $alt = sanitize_text_field($alt);
             $new_alt_parts[] = $alt;
         } else {
             $new_alt_parts[] = $default_text;
@@ -159,6 +181,9 @@ function raa_modify_image_alt_tags($content) {
 
         // Filtrar partes vacías y unir con guiones
         $new_alt = implode(' - ', array_filter($new_alt_parts));
+
+        // Saneamiento del atributo ALT
+        $new_alt = esc_attr($new_alt);
 
         $img->setAttribute('alt', $new_alt);
     }
