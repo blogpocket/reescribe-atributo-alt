@@ -3,8 +3,8 @@
 Plugin Name: Reescribe atributo ALT
 Description: Reescribe el atributo ALT de las imágenes para mejorar la accesibilidad.
 Version: 1.0
-Author: A. Cambronero Blogpocket.com
-Text Domain: alt-attribute-rewriter
+Author: Tu Nombre
+Text Domain: reescribe-atributo-alt
 */
 
 if (!defined('ABSPATH')) {
@@ -12,87 +12,87 @@ if (!defined('ABSPATH')) {
 }
 
 // Añadir menú al panel de administración
-add_action('admin_menu', 'aar_add_admin_menu');
-add_action('admin_init', 'aar_settings_init');
+add_action('admin_menu', 'raa_add_admin_menu');
+add_action('admin_init', 'raa_settings_init');
 
-function aar_add_admin_menu() {
+function raa_add_admin_menu() {
     add_options_page(
-        'Alt Attribute Rewriter',
-        'Alt Attribute Rewriter',
+        'Reescribe atributo ALT',
+        'Reescribe atributo ALT',
         'manage_options',
-        'alt-attribute-rewriter',
-        'aar_options_page'
+        'reescribe-atributo-alt',
+        'raa_options_page'
     );
 }
 
-function aar_settings_init() {
-    register_setting('aar_settings_group', 'aar_settings');
+function raa_settings_init() {
+    register_setting('raa_settings_group', 'raa_settings');
 
     add_settings_section(
-        'aar_settings_section',
-        __('Configuración del plugin', 'alt-attribute-rewriter'),
-        'aar_settings_section_callback',
-        'aar_settings_group'
+        'raa_settings_section',
+        __('Configuración del plugin', 'reescribe-atributo-alt'),
+        'raa_settings_section_callback',
+        'raa_settings_group'
     );
 
     add_settings_field(
         'include_title',
-        __('Incluir título del post o página', 'alt-attribute-rewriter'),
-        'aar_include_title_render',
-        'aar_settings_group',
-        'aar_settings_section'
+        __('Incluir título del post o página', 'reescribe-atributo-alt'),
+        'raa_include_title_render',
+        'raa_settings_group',
+        'raa_settings_section'
     );
 
     add_settings_field(
         'include_filename',
-        __('Incluir nombre del archivo de imagen', 'alt-attribute-rewriter'),
-        'aar_include_filename_render',
-        'aar_settings_group',
-        'aar_settings_section'
+        __('Incluir nombre del archivo de imagen', 'reescribe-atributo-alt'),
+        'raa_include_filename_render',
+        'raa_settings_group',
+        'raa_settings_section'
     );
 
     add_settings_field(
         'default_text',
-        __('Texto predeterminado', 'alt-attribute-rewriter'),
-        'aar_default_text_render',
-        'aar_settings_group',
-        'aar_settings_section'
+        __('Texto predeterminado', 'reescribe-atributo-alt'),
+        'raa_default_text_render',
+        'raa_settings_group',
+        'raa_settings_section'
     );
 }
 
-function aar_include_title_render() {
-    $options = get_option('aar_settings');
+function raa_include_title_render() {
+    $options = get_option('raa_settings');
     ?>
-    <input type='checkbox' name='aar_settings[include_title]' <?php checked(isset($options['include_title'])); ?> value='1'>
+    <input type='checkbox' name='raa_settings[include_title]' <?php checked(isset($options['include_title'])); ?> value='1'>
     <?php
 }
 
-function aar_include_filename_render() {
-    $options = get_option('aar_settings');
+function raa_include_filename_render() {
+    $options = get_option('raa_settings');
     ?>
-    <input type='checkbox' name='aar_settings[include_filename]' <?php checked(isset($options['include_filename'])); ?> value='1'>
+    <input type='checkbox' name='raa_settings[include_filename]' <?php checked(isset($options['include_filename'])); ?> value='1'>
     <?php
 }
 
-function aar_default_text_render() {
-    $options = get_option('aar_settings');
+function raa_default_text_render() {
+    $options = get_option('raa_settings');
     ?>
-    <input type='text' name='aar_settings[default_text]' value='<?php echo isset($options['default_text']) ? esc_attr($options['default_text']) : ''; ?>' style='width: 300px;'>
+    <input type='text' name='raa_settings[default_text]' value='<?php echo isset($options['default_text']) ? esc_attr($options['default_text']) : ''; ?>' style='width: 300px;'>
     <?php
 }
 
-function aar_settings_section_callback() {
-    echo __('Configura cómo se reescribirá el atributo ALT de las imágenes.', 'alt-attribute-rewriter');
+function raa_settings_section_callback() {
+    echo __('Configura cómo se reescribirá el atributo ALT de las imágenes.', 'reescribe-atributo-alt');
 }
 
-function aar_options_page() {
+function raa_options_page() {
     ?>
     <div class="wrap">
-        <h1>Alt Attribute Rewriter</h1>
+        <h1>Reescribe atributo ALT</h1>
         <form action='options.php' method='post'>
             <?php
-            settings_fields('aar_settings_group');
-            do_settings_sections('aar_settings_group');
+            settings_fields('raa_settings_group');
+            do_settings_sections('raa_settings_group');
             submit_button();
             ?>
         </form>
@@ -101,14 +101,14 @@ function aar_options_page() {
 }
 
 // Reescribir el atributo ALT de las imágenes
-add_filter('the_content', 'aar_modify_image_alt_tags');
+add_filter('the_content', 'raa_modify_image_alt_tags');
 
-function aar_modify_image_alt_tags($content) {
+function raa_modify_image_alt_tags($content) {
     if (!is_singular()) {
         return $content;
     }
 
-    $options = get_option('aar_settings');
+    $options = get_option('raa_settings');
     $include_title = isset($options['include_title']);
     $include_filename = isset($options['include_filename']);
     $default_text = isset($options['default_text']) ? $options['default_text'] : '';
